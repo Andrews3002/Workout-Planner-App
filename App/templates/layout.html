@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+  <head>
+  
+    <link rel="stylesheet" href="/static/style.css">
+    
+    <!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"> --> 
+
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{% block title %}{% endblock %}</title>
+
+  </head>
+  <body>
+    
+      <!-- <nav class="purple">
+          <div class="nav-wrapper">
+              <a href="#!" class="brand-logo center">{% block page %}{% endblock %}</a>
+              <ul id="nav-mobile" class="left">
+                  <li><a href="/">Home</a></li>
+                  <li><a href="/users">Users Jinja</a></li>
+                  {% if is_authenticated %}
+                    <li><a href="/identify">Identify</a></li>
+                  {% endif %}
+                  <li><a href="/static/users">Users JS</a></li>
+              </ul>
+              {% if is_authenticated %}
+              <ul id="nav-mobile" class="right">
+                <li><a href="/logout">Logout</a></li>
+              </ul>
+              {% else %}
+              <form class="right navbar-form" method="POST" action="/login" style="display: flex; flex-wrap: nowrap; align-items: center; margin-right: 10px;">
+                  <div class="input-field" style="margin-right: 10px;">
+                      <input placeholder="username" value="bob" name="username" type="text" class="validate" required>
+                      <label for="username">username</label>
+                  </div>
+                  <div class="input-field" style="margin-right: 10px;">
+                      <input placeholder="password"value="bobpass" name="password" type="password" class="validate" required>
+                      <label for="password">Password</label>
+                  </div>
+                  <button type="submit" class="btn waves-effect waves-light">Login</button>
+              </form>
+              {% endif %}
+              
+          </div>
+      </nav> -->
+      <nav class="navbar" style="z-index: 1; background-color: black;" >
+        <input type="checkbox" id="check">
+        <label for="check" class="checkbtn">
+          <img src="/images/PikPng.com_white-bars-png_4251166.png" alt="">
+        </label>
+        <div class="nav__logo">
+          <a href="/home"><img src="/images/island-fitness-logo.png" alt="logo" /></a>
+        </div>
+        <ul class="nav__links">
+          <li class="link"><a class="linka" href="/home">Home</a></li>
+          <li class="link"><a class="linka" href="/browseExercises_page">Browse Workouts</a></li>
+          <li class = "link"><a class="linka" href = "/manageWorkouts_page">View/Edit routine</a></li>
+        </ul>
+        <div>
+        {% if is_authenticated %}
+          <a href="/logout">
+            <button class="btn">Logout</button>
+          </a>
+        {% else %}
+            <a href="/home">
+              <button class="btn">Login</button>
+            </a>
+        {% endif %}
+      </div>
+      </nav>
+
+      <style>
+          .navbar-form label {
+              color: white !important;
+          }
+      </style>
+
+    <div class="container" id="content">{% block content %}{% endblock %}</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+       M.AutoInit();
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+              {% for message in messages %}
+              M.toast({html: '{{message}}'})
+              {% endfor %}
+          {% endif %}
+        {% endwith %}
+       
+    </script>
+  </body>
+</html>
