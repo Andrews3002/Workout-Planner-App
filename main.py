@@ -28,10 +28,8 @@ def create_app():
     app.config['TEMPLATES_AUTO_RELOAD'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///your_database_name.db"
     app.config['SECRET_KEY'] = "secret key"
-    app.config['ENV'] = "PRODUCTION" 
     app.config['PREFERRED_URL_SCHEME'] = 'https'
     app.config['UPLOADED_PHOTOS_DEST'] = "App/uploads"
-    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 7
     app.config['JWT_ACCESS_COOKIE_NAME'] = 'access_token'
     app.config['JWT_REFRESH_COOKIE_NAME'] = 'refresh_token'
     app.config["JWT_TOKEN_LOCATION"] = ["cookies", "headers"]
