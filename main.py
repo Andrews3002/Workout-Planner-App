@@ -4,7 +4,6 @@ from functools import wraps
 from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import (JWTManager, create_access_token, get_jwt_identity, jwt_required, current_user, set_access_cookies,
 unset_jwt_cookies, verify_jwt_in_request)
-from flask_migrate import Migrate
 
 from models import User, Workout, Exercise, db
 
@@ -43,7 +42,6 @@ def create_app():
     return app
 
 app = create_app()
-migrate = Migrate(app, db)
 jwt = JWTManager(app)
 
 @jwt.user_identity_loader
