@@ -1,4 +1,6 @@
 import os
+from dotenv import load_dotenv
+import datetime
 from flask import Flask, render_template, request, redirect, url_for, jsonify, flash, send_from_directory
 from functools import wraps
 from sqlalchemy.exc import IntegrityError
@@ -25,15 +27,16 @@ def create_app():
     app = Flask(__name__, static_url_path='/static')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['TEMPLATES_AUTO_RELOAD'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///your_database_name.db"
-    app.config['SECRET_KEY'] = "secret key"
-    app.config['PREFERRED_URL_SCHEME'] = 'https'
-    app.config['UPLOADED_PHOTOS_DEST'] = "App/uploads"
-    app.config['JWT_ACCESS_COOKIE_NAME'] = 'access_token'
-    app.config['JWT_REFRESH_COOKIE_NAME'] = 'refresh_token'
-    app.config["JWT_TOKEN_LOCATION"] = ["cookies", "headers"]
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
+    app.config['DEBUG'] = True
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+    app.config['PREFERRED_URL_SCHEME'] = os.getenv('PREFERRED_URL_SCHEME')
+    app.config['JWT_ACCESS_COOKIE_NAME'] = os.getenv('JWT_ACCESS_COOKIE_NAME')
+    app.config['JWT_REFRESH_COOKIE_NAME'] = os.getenv('JWT_REFRESH_COOKIE_NAME')
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = datetime.timedelta(hours=1)
+    app.config["JWT_TOKEN_LOCATION"] = os.getenv('JWT_TOKEN_LOCATION')
     app.config["JWT_COOKIE_SECURE"] = True
-    app.config["JWT_SECRET_KEY"] = "super-secret"
+    app.config["JWT_SECRET_KEY"] = os.getenv('JWT_SECRET_KEY')
     app.config["JWT_COOKIE_CSRF_PROTECT"] = False
     
     add_auth_context(app)
