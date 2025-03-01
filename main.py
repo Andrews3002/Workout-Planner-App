@@ -1,9 +1,9 @@
-import os
+import os, csv
 from dotenv import load_dotenv
 import datetime
 from flask import Flask, render_template, request, redirect, url_for, jsonify, flash, send_from_directory
 from functools import wraps
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError
 from flask_jwt_extended import (JWTManager, create_access_token, get_jwt_identity, jwt_required, current_user, set_access_cookies,
 unset_jwt_cookies, verify_jwt_in_request)
 
@@ -113,8 +113,22 @@ def update_user(id, username):
 
 @app.route('/init', methods=['GET'])
 def init():
-    initialize()
+    db.drop_all()
+    db.create_all()
+    
+    with open('static/exercises.csv', newline='', encoding='utf8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            exercise = Exercise(id=row['id'], name=row['name'], category=row['exercise_type'], body_part=row['Targeted_body_part'], videoLink=row['Video_Link'])
+            db.session.add(exercise)
+    db.session.commit()
     return jsonify(message='db initialized!')
+
+def login(username, password):
+  user = User.query.filter_by(username=username).first()
+  if user and user.check_password(password):
+    return create_access_token(identity=username)
+  return None
     
 @app.route('/', methods=['GET'])
 def login_page():
@@ -135,12 +149,6 @@ def login_action():
         response = redirect(url_for('index_page'))
         set_access_cookies(response, token) 
         return response
-
-def login(username, password):
-  user = User.query.filter_by(username=username).first()
-  if user and user.check_password(password):
-    return create_access_token(identity=username)
-  return None
 
 @app.route('/signup-page', methods=['GET'])
 def signup_page():
@@ -223,7 +231,7 @@ def createWorkout_action(exercise_id):
 @app.route('/manageWorkouts_page', methods=['GET'])
 @app.route('/remove/<int:exercise_id>/<int:workout_id>', methods=['GET'])
 @jwt_required()
-def manageWorkouts_page(exercise_id=None, workout_id=None):
+def manageWorkouts_page(exercise_id=None, workout_id=None):    
     return render_template('manageWorkouts.html', exercise_id=exercise_id, workout_id=workout_id)
 
 @app.route('/users', methods=['GET'])
@@ -235,31 +243,6 @@ def get_user_page():
 @jwt_required()
 def identify_page():
     return render_template('message.html', title="Identify", message=f"You are logged in as {current_user.id} - {current_user.username}")
-    
-
-'''
-API Routes
-'''
-@app.route('/api/login', methods=['POST'])
-def user_login_api():
-  data = request.json
-  token = login(data['username'], data['password'])
-  if not token:
-    return jsonify(message='bad username or password given'), 401
-  response = jsonify(access_token=token) 
-  set_access_cookies(response, token)
-  return response
-
-@app.route('/api/identify', methods=['GET'])
-@jwt_required()
-def identify_user():
-    return jsonify({'message': f"username: {current_user.username}, id : {current_user.id}"})
-
-@app.route('/api/logout', methods=['GET'])
-def logout_api():
-    response = jsonify(message="Logged Out!")
-    unset_jwt_cookies(response)
-    return response
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -272,23 +255,7 @@ def create_user_action():
     create_user(data['username'], data['password'])
     return redirect(url_for('get_user_page'))
 
-@app.route('/api/users', methods=['GET'])
-def get_users_action():
-    users = get_all_users_json()
-    return jsonify(users)
-
-@app.route('/api/users', methods=['POST'])
-def create_user_endpoint():
-    data = request.json
-    user = create_user(data['username'], data['password'])
-    return jsonify({'message': f"user {user.username} created with id {user.id}"})
-
 @app.route('/static/users', methods=['GET'])
 def static_user_page():
   return send_from_directory('static', 'static-user.html')
-
-@app.route('/images', methods=['GET'])
-@app.route("/images/<string:filename>", methods=['GET'])
-def images_access(filename):
-  return send_from_directory('images', filename)
 
